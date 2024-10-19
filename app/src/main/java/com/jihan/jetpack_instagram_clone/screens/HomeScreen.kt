@@ -1,4 +1,4 @@
-package com.jihan.jetpack_instagram_clone.ui.screens
+package com.jihan.jetpack_instagram_clone.screens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

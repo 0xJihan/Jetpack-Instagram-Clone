@@ -16,10 +16,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.jihan.jetpack_instagram_clone.ui.screens.HomeScreen
-import com.jihan.jetpack_instagram_clone.ui.screens.LoginScreen
-import com.jihan.jetpack_instagram_clone.ui.screens.NextScreen
-import com.jihan.jetpack_instagram_clone.ui.screens.SignupScreen
+import com.jihan.jetpack_instagram_clone.screens.HomeScreen
+import com.jihan.jetpack_instagram_clone.screens.LoginScreen
+import com.jihan.jetpack_instagram_clone.screens.NextScreen
+import com.jihan.jetpack_instagram_clone.screens.SignupScreen
 import com.jihan.jetpack_instagram_clone.ui.theme.JetpackinstagramcloneTheme
 import com.jihan.jetpack_instagram_clone.utils.NetworkConnectivityObserver
 import com.jihan.jetpack_instagram_clone.utils.NetworkObserver
