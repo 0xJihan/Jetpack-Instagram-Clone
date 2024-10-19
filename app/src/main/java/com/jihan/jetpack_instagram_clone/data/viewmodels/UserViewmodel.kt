@@ -1,6 +1,6 @@
 package com.jihan.jetpack_instagram_clone.data.viewmodels
 
-import android.content.Context
+
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 
-class UserViewmodel(private val userRepository: UserRepository, context: Context) : ViewModel() {
+class UserViewmodel(private val userRepository: UserRepository) : ViewModel() {
 
     private var _signupResponse = MutableStateFlow<UiState<UserResponse>>(UiState.Initial())
     val signupResponse = _signupResponse.asStateFlow()

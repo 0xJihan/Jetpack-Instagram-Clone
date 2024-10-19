@@ -4,7 +4,7 @@ import android.content.Context
 
 
 class TokenManager(
-      private val context: Context
+       context: Context
 ) {
 
       private val preferences = context.getSharedPreferences(SHARED_PREFERENCE,Context.MODE_PRIVATE)

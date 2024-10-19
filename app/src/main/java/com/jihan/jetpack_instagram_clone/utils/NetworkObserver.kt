@@ -12,13 +12,13 @@ import kotlinx.coroutines.launch
 
 
 class NetworkConnectivityObserver (
-    private val context: Context
+    context: Context
 ) : NetworkObserver {
 
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-    override fun Observe(): Flow<NetworkObserver.Status> {
+    override fun observe(): Flow<NetworkObserver.Status> {
         return callbackFlow {
 
             val callback = object : ConnectivityManager.NetworkCallback() {
@@ -72,7 +72,7 @@ class NetworkConnectivityObserver (
 
 interface NetworkObserver {
 
-    fun Observe(): Flow<Status>
+    fun observe(): Flow<Status>
 
 
     enum class Status {

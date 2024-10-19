@@ -11,7 +11,7 @@ object HelperClass {
         confirmPassword : String?=null
     ): Pair<Boolean, String> {
 
-        var result = Pair(true, "")
+        val result = Pair(true, "")
 
         if (userName.isEmpty() || email.isEmpty() || password.isEmpty()) {
             return Pair(false, "Please Provide All Required Information")
