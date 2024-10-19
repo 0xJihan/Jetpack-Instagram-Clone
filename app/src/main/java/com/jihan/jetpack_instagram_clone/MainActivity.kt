@@ -9,10 +9,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -20,26 +18,21 @@ import com.jihan.jetpack_instagram_clone.screens.HomeScreen
 import com.jihan.jetpack_instagram_clone.screens.LoginScreen
 import com.jihan.jetpack_instagram_clone.screens.NextScreen
 import com.jihan.jetpack_instagram_clone.screens.SignupScreen
-import com.jihan.jetpack_instagram_clone.ui.theme.JetpackinstagramcloneTheme
-import com.jihan.jetpack_instagram_clone.utils.NetworkConnectivityObserver
-import com.jihan.jetpack_instagram_clone.utils.NetworkObserver
+import com.jihan.jetpack_instagram_clone.ui.theme.AppTheme
 import com.jihan.jetpack_instagram_clone.utils.ScreenRoutes.HOME_SCREEN
 import com.jihan.jetpack_instagram_clone.utils.ScreenRoutes.LOGIN_SCREEN
 import com.jihan.jetpack_instagram_clone.utils.ScreenRoutes.NEXT_SCREEN
 import com.jihan.jetpack_instagram_clone.utils.ScreenRoutes.SIGNUP_SCREEN
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
+
 class MainActivity : ComponentActivity() {
     private var isReady: Boolean = false
 
-    @Inject
-    lateinit var networkObserver: NetworkConnectivityObserver
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -72,16 +65,12 @@ class MainActivity : ComponentActivity() {
                 delay(1000)
                 isReady = true
             } // delay the splash screen
-        } // showing the animated splash screen for android 12
+        } // showing the animated splash screen for android 12 and above
 
 
         setContent {
-            JetpackinstagramcloneTheme {
-                val status by networkObserver.Observe()
-                    .collectAsStateWithLifecycle(initialValue = NetworkObserver.Status.UnAvailable)
-
-                ExperimentScreen(status)
-
+            AppTheme {
+                InstagramClone()
             }
         }
     }
@@ -137,16 +126,25 @@ class MainActivity : ComponentActivity() {
                     } else {
                         navController.navigate(LOGIN_SCREEN)
                     }
-                })
+                }) {
+
+                    navController.navigate(HOME_SCREEN) {
+                        popUpTo(NEXT_SCREEN) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
             }
+        }
+
+
+
 
 
             composable(route = HOME_SCREEN) {
                 HomeScreen()
             }
-
-
-        }
+    }
     }
 }
 

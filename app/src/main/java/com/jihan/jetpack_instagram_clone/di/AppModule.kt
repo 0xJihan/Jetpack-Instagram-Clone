@@ -1,27 +1,50 @@
 package com.jihan.jetpack_instagram_clone.di
 
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.jihan.jetpack_instagram_clone.data.repositories.UserRepository
+import com.jihan.jetpack_instagram_clone.data.sources.remote.api.NetworkInterceptor
+import com.jihan.jetpack_instagram_clone.data.sources.remote.api.UserApi
+import com.jihan.jetpack_instagram_clone.data.viewmodels.UserViewmodel
 import com.jihan.jetpack_instagram_clone.utils.Constants.BASE_URL
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import jakarta.inject.Singleton
-import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
+import com.jihan.jetpack_instagram_clone.utils.TokenManager
+import okhttp3.OkHttpClient
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModelOf
+import org.koin.dsl.module
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
-@Module
-@InstallIn(SingletonComponent::class)
-object AppModule {
+val appModule = module {
 
-    private val JsonConverter = Json.asConverterFactory("application/json".toMediaType())
 
-    @Provides
-    @Singleton
-    fun providesRetrofit(): Retrofit {
-        return Retrofit.Builder().baseUrl(BASE_URL).addConverterFactory(JsonConverter).build()
+
+    // OkHttpClient
+    single {
+       OkHttpClient.Builder().addInterceptor(NetworkInterceptor(get())).build()
     }
+
+    // Retrofit Builder
+    single {
+        Retrofit.Builder().client(get()).addConverterFactory(GsonConverterFactory.create()).baseUrl(BASE_URL)
+    }
+
+
+    // UserApi
+    single {
+        get<Retrofit.Builder>().client(get()).build().create(UserApi::class.java)
+    }
+
+
+    // Token manager
+    single {
+        TokenManager(androidContext())
+    }
+
+    // UserRepository
+    singleOf(::UserRepository)
+
+    // UserViewmodel
+    viewModelOf(::UserViewmodel)
 
 
 }

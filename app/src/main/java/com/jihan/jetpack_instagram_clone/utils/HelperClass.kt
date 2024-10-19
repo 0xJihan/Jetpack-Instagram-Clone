@@ -8,6 +8,7 @@ object HelperClass {
         userName: String = "Default",
         email: String,
         password: String,
+        confirmPassword : String?=null
     ): Pair<Boolean, String> {
 
         var result = Pair(true, "")
@@ -18,6 +19,9 @@ object HelperClass {
             return Pair(false, "Invalid Email Address")
         } else if (password.length < 5) {
             return Pair(false, "Password should be at least 5 characters long")
+        }
+        else if (confirmPassword!=null && confirmPassword!=password) {
+            return Pair(false, "Password doesn't match")
         }
 
 

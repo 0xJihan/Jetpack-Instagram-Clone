@@ -1,6 +1,9 @@
 package com.jihan.jetpack_instagram_clone.ui.theme
 import androidx.compose.ui.graphics.Color
 
+
+
+
 val primaryLight = Color(0xFF405F90)
 val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFFD6E3FF)
@@ -221,5 +224,12 @@ val surfaceContainerHighestDarkHighContrast = Color(0xFF33353A)
 
 
 
+val bgColorList = listOf(
+    Color(0xFFC8A2FF),
+    Color(0xFF8DAEFF)
+)
 
-
+val bgColorListDark = listOf(
+    Color(0xFF4B3F8C), // A dark purple
+    Color(0xFF3B7E9D)  // A dark teal
+)

@@ -5,9 +5,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -101,32 +98,4 @@ fun MyTextField(
 }
 
 
-@Composable
-fun MyButton(
-    text: String = "Login",
-    modifier: Modifier = Modifier.fillMaxWidth(),
-    enabled: Boolean = true,
-    elevation: Dp = 8.dp,
-    cornerRadius: Int = 10,
-    showProgress: Boolean = false,
-    onClick: () -> Unit,
-) {
-
-
-    ElevatedButton(
-        onClick = {
-            onClick()
-        },
-        modifier = modifier,
-        elevation = ButtonDefaults.elevatedButtonElevation(elevation),
-        shape = RoundedCornerShape(cornerRadius),
-        enabled = enabled
-    ) {
-
-        if (showProgress) {
-            CircularProgressIndicator()
-        } else Text(text)
-
-    }
-}
 

@@ -3,6 +3,7 @@ package com.jihan.jetpack_instagram_clone.screens
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,14 +32,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jihan.jetpack_instagram_clone.components.MyButton
 import com.jihan.jetpack_instagram_clone.components.MyTextField
+import com.jihan.jetpack_instagram_clone.data.models.UserRequest
+import com.jihan.jetpack_instagram_clone.data.viewmodels.UserViewmodel
 import com.jihan.jetpack_instagram_clone.ui.theme.bgColorList
+import com.jihan.jetpack_instagram_clone.ui.theme.bgColorListDark
 import com.jihan.jetpack_instagram_clone.utils.HelperClass
 import com.jihan.jetpack_instagram_clone.utils.MyFonts
+import com.jihan.jetpack_instagram_clone.utils.TokenManager
+import com.jihan.jetpack_instagram_clone.utils.UiState
+import org.koin.compose.koinInject
 
 @Composable
 fun LoginScreen(
@@ -49,6 +57,38 @@ fun LoginScreen(
     val context = LocalContext.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    val bgColorList = if (isSystemInDarkTheme()) bgColorListDark else bgColorList
+
+    val userViewmodel = koinInject<UserViewmodel>()
+
+    val loginResponse = userViewmodel.loginResponse.collectAsStateWithLifecycle()
+
+    var isLoading by remember { mutableStateOf(false) }
+
+    val tokenManager = koinInject<TokenManager>()
+
+
+    LaunchedEffect(loginResponse.value) {
+        when (val state = loginResponse.value) {
+            is UiState.Initial -> {}
+            is UiState.Loading -> {
+                isLoading = true
+            }
+
+            is UiState.Success -> {
+                isLoading = false
+                Toast.makeText(context, state.data!!.message, Toast.LENGTH_SHORT).show()
+                tokenManager.saveToken(state.data.result.token)
+                onLoginClicked()
+            }
+
+            is UiState.Error -> {
+                isLoading = false
+                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
 
     Box(
@@ -146,13 +186,19 @@ fun LoginScreen(
             MyButton(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .size(50.dp), cornerRadius = 15
+                    .size(50.dp),
+                cornerRadius = 15,
+                enabled = isLoading.not(),
+                showProgress = isLoading
             ) {
                 val pair = HelperClass.validateUserCredentials(email = email, password = password)
 
                if (pair.first){
-                   Toast.makeText(context, "Login Successfully", Toast.LENGTH_SHORT).show()
-                    onLoginClicked()
+                   userViewmodel.login(
+                       UserRequest(
+                           username = "null", email = email, password = password
+                       )
+                   )
                }
                 else {
                     Toast.makeText(context, pair.second, Toast.LENGTH_SHORT).show()
@@ -189,8 +235,3 @@ fun LoginScreen(
 }
 
 
-@Preview(showSystemUi = true)
-@Composable
-private fun PreviewLoginScreen() {
-    LoginScreen()
-}

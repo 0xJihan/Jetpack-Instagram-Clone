@@ -5,12 +5,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    // hilt
-    alias(libs.plugins.kotlin.kapt)
-    alias(libs.plugins.hilt)
-    // kotlinX serialization
-    alias(libs.plugins.kotlin.serialization)
-
 
 }
 
@@ -74,9 +68,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    // Hilt
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.androidx.compose.navigation)
 
     // Coil
     implementation(libs.coil.compose)
@@ -87,8 +80,7 @@ dependencies {
 
     // Retrofit
     implementation(libs.retrofit)
-    implementation(libs.okhttp)
-    implementation(libs.retrofit2.kotlinx.serialization.converter)
+    implementation(libs.gson)
 
     // implementation("com.google.accompanist:accompanist-permissions:0.36.0")
 
@@ -100,12 +92,5 @@ dependencies {
 
 
 
-    // Kotlinx Serialization
-    implementation(libs.kotlinx.serialization.json)
-
 }
 
-// Allow references to generated code
-kapt {
-    correctErrorTypes = true
-}
