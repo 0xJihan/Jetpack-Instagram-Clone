@@ -69,14 +69,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(libs.koin.androidx.compose)
-    implementation(libs.koin.androidx.compose.navigation)
 
     // Coil
     implementation(libs.coil.compose)
     //implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0-rc01")
-
-    // navigation
-    implementation(libs.androidx.navigation.compose)
 
     // Retrofit
     implementation(libs.retrofit)
@@ -90,6 +86,14 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
 
 
+    implementation(libs.iconsax.android)
+
+
+    // voyager
+    implementation(libs.voyager.navigator)
+    implementation(libs.voyager.tab.navigator)
+    implementation(libs.voyager.transitions)
+    implementation(libs.voyager.koin)
 
 
 }

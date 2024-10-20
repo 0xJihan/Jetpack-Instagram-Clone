@@ -230,18 +230,20 @@ fun SignupScreen(
 
                 )
 
+                onSignupClicked()
 
-                if (pair.first) {
-                    userViewmodel.signup(
-                        UserRequest(
-                            username = username, email = email, password = password
-                        )
-                    )
-
-
-                } else {
-                    Toast.makeText(context, pair.second, Toast.LENGTH_SHORT).show()
-                }
+                // TODO: Fix later
+//                if (pair.first) {
+//                    userViewmodel.signup(
+//                        UserRequest(
+//                            username = username, email = email, password = password
+//                        )
+//                    )
+//
+//
+//                } else {
+//                    Toast.makeText(context, pair.second, Toast.LENGTH_SHORT).show()
+//                }
 
             }
 

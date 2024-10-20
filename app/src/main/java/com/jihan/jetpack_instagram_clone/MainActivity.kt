@@ -5,24 +5,18 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.animation.OvershootInterpolator
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.jihan.jetpack_instagram_clone.screens.HomeScreen
-import com.jihan.jetpack_instagram_clone.screens.LoginScreen
-import com.jihan.jetpack_instagram_clone.screens.NextScreen
-import com.jihan.jetpack_instagram_clone.screens.SignupScreen
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.transitions.SlideTransition
+import com.jihan.jetpack_instagram_clone.navigation.AppRoutes
 import com.jihan.jetpack_instagram_clone.ui.theme.AppTheme
-import com.jihan.jetpack_instagram_clone.utils.ScreenRoutes.HOME_SCREEN
-import com.jihan.jetpack_instagram_clone.utils.ScreenRoutes.LOGIN_SCREEN
-import com.jihan.jetpack_instagram_clone.utils.ScreenRoutes.NEXT_SCREEN
-import com.jihan.jetpack_instagram_clone.utils.ScreenRoutes.SIGNUP_SCREEN
+import com.jihan.jetpack_instagram_clone.utils.TokenManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -31,6 +25,7 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private var isReady: Boolean = false
+    private var isUserLoggedIn: Boolean? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +35,7 @@ class MainActivity : ComponentActivity() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             splashScreen.setKeepOnScreenCondition {
+                isUserLoggedIn = TokenManager(applicationContext).isLoggedIn()
                 !isReady
             }
 
@@ -65,86 +61,36 @@ class MainActivity : ComponentActivity() {
                 delay(1000)
                 isReady = true
             } // delay the splash screen
-        } // showing the animated splash screen for android 12 and above
+        } //* showing the animated splash screen for android 12 and above
 
 
         setContent {
             AppTheme {
-                InstagramClone()
-            }
-        }
-    }
-
-
-    @Composable
-    fun InstagramClone() {
-
-
-        val navController = rememberNavController()
-
-        NavHost(navController = navController, startDestination = NEXT_SCREEN) {
-
-
-            composable(route = NEXT_SCREEN) {
-                NextScreen(onLoginClicked = {
-                    navController.navigate(LOGIN_SCREEN)
-                }) {
-                    navController.navigate(SIGNUP_SCREEN)
+                Navigator(AppRoutes.Next) {
+                    SlideTransition(it)
                 }
-            }
-
-            composable(route = LOGIN_SCREEN) {
-                LoginScreen(onSignUpClicked = {
-
-                    // checking if the previous screen is the signup screen
-                    val previousScreen =
-                        navController.previousBackStackEntry?.destination?.route == SIGNUP_SCREEN
-
-                    if (previousScreen) {
-                        navController.popBackStack()
-                    } else {
-                        navController.navigate(SIGNUP_SCREEN)
-                    }
-
-                }) {
-                    navController.navigate(HOME_SCREEN) {
-                        popUpTo(route = NEXT_SCREEN) {
-                            inclusive = true
-                        }
-                    }
-                }
-            }
-
-            composable(route = SIGNUP_SCREEN) {
-                SignupScreen(onLoginClicked = {
-
-                    // checking if the previous screen is the login screen
-                    val previousScreen =
-                        navController.previousBackStackEntry?.destination?.route == LOGIN_SCREEN
-                    if (previousScreen) {
-                        navController.popBackStack()
-                    } else {
-                        navController.navigate(LOGIN_SCREEN)
-                    }
-                }) {
-
-                    navController.navigate(HOME_SCREEN) {
-                        popUpTo(NEXT_SCREEN) {
-                            inclusive = true
-                        }
-                        launchSingleTop = true
-                    }
             }
         }
 
 
-
-
-
-            composable(route = HOME_SCREEN) {
-                HomeScreen()
+        var backPressedTime = 0L
+        onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val currentTime = System.currentTimeMillis()
+                if (currentTime - backPressedTime < 3000) {
+                    finish()
+                } else {
+                    Toast.makeText(
+                        applicationContext, "Press back again to exit", Toast.LENGTH_SHORT
+                    ).show()
+                    backPressedTime = currentTime
+                }
             }
+        })
+
     }
-    }
+
+
+
 }
 

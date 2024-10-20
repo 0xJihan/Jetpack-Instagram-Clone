@@ -193,16 +193,21 @@ fun LoginScreen(
             ) {
                 val pair = HelperClass.validateUserCredentials(email = email, password = password)
 
-               if (pair.first){
-                   userViewmodel.login(
-                       UserRequest(
-                           username = "null", email = email, password = password
-                       )
-                   )
-               }
-                else {
-                    Toast.makeText(context, pair.second, Toast.LENGTH_SHORT).show()
-                }
+
+                onLoginClicked()
+
+                // TODO: Fix this later
+
+//               if (pair.first){
+//                   userViewmodel.login(
+//                       UserRequest(
+//                           username = "null", email = email, password = password
+//                       )
+//                   )
+//               }
+//                else {
+//                    Toast.makeText(context, pair.second, Toast.LENGTH_SHORT).show()
+//                }
 
 
             }

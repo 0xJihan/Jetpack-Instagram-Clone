@@ -2,8 +2,8 @@
 agp = "8.7.1"
 coilCompose = "3.0.0-rc01"
 coreSplashscreen = "1.0.1"
+iconsaxAndroid = "1.0.0"
 koinAndroidxCompose = "4.0.0"
-koinAndroidxComposeNavigation = "4.0.0"
 kotlin = "2.0.20"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -12,18 +12,18 @@ espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.3"
 composeBom = "2024.10.00"
-navigationCompose = "2.8.3"
 retrofit = "2.11.0"
 
 uiTextGoogleFonts = "1.7.4"
+voyagerVersion = "1.1.0-beta02"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
-androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 
+iconsax-android = { module = "io.github.being-eyram:iconsax-android", version.ref = "iconsaxAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -38,10 +38,13 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinAndroidxCompose" }
-koin-androidx-compose-navigation = { module = "io.insert-koin:koin-androidx-compose-navigation", version.ref = "koinAndroidxComposeNavigation" }
 
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voyagerVersion" }
+voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyagerVersion" }
+voyager-tab-navigator = { module = "cafe.adriel.voyager:voyager-tab-navigator", version.ref = "voyagerVersion" }
+voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyagerVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

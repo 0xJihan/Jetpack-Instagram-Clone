@@ -20,6 +20,21 @@ class TokenManager(
             return preferences.getString(TOKEN, null)
       }
 
+
+
+      fun isLoggedIn() : Boolean {
+            return getToken() != null
+      }
+
+
+      fun deleteToken() {
+            val editor = preferences.edit()
+            editor.remove(TOKEN)
+            editor.apply()
+      }
+
+
+
       companion object{
             const val SHARED_PREFERENCE = "TokenSharedPrefs"
             const val TOKEN = "UserToken"
