@@ -1,11 +1,11 @@
 package com.jihan.jetpack_instagram_clone.di
 
-import com.jihan.jetpack_instagram_clone.data.repositories.UserRepository
-import com.jihan.jetpack_instagram_clone.data.sources.remote.api.NetworkInterceptor
-import com.jihan.jetpack_instagram_clone.data.sources.remote.api.UserApi
-import com.jihan.jetpack_instagram_clone.data.viewmodels.UserViewmodel
-import com.jihan.jetpack_instagram_clone.utils.Constants.BASE_URL
-import com.jihan.jetpack_instagram_clone.utils.TokenManager
+import com.jihan.jetpack_instagram_clone.domain.repositories.UserRepository
+import com.jihan.jetpack_instagram_clone.domain.sources.remote.api.NetworkInterceptor
+import com.jihan.jetpack_instagram_clone.domain.sources.remote.api.UserApi
+import com.jihan.jetpack_instagram_clone.domain.viewmodels.UserViewmodel
+import com.jihan.jetpack_instagram_clone.domain.utils.Constants.BASE_URL
+import com.jihan.jetpack_instagram_clone.domain.utils.TokenManager
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf

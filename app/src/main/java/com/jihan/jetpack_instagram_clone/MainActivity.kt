@@ -14,9 +14,9 @@ import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
-import com.jihan.jetpack_instagram_clone.navigation.AppRoutes
+import com.jihan.jetpack_instagram_clone.presentation.navigation.AppRoutes
 import com.jihan.jetpack_instagram_clone.ui.theme.AppTheme
-import com.jihan.jetpack_instagram_clone.utils.TokenManager
+import com.jihan.jetpack_instagram_clone.domain.utils.TokenManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private var isReady: Boolean = false
-    private var isUserLoggedIn: Boolean? = null
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +35,6 @@ class MainActivity : ComponentActivity() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             splashScreen.setKeepOnScreenCondition {
-                isUserLoggedIn = TokenManager(applicationContext).isLoggedIn()
                 !isReady
             }
 
@@ -66,9 +65,18 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             AppTheme {
-                Navigator(AppRoutes.Next) {
+                val isUserLoggedIn = TokenManager(applicationContext).isLoggedIn()
+                val startDestination = if (isUserLoggedIn) {
+                    AppRoutes.Home
+                } else {
+                    AppRoutes.Next
+                }
+
+                Navigator(startDestination) {
                     SlideTransition(it)
                 }
+
+
             }
         }
 
@@ -91,6 +99,7 @@ class MainActivity : ComponentActivity() {
     }
 
 
-
 }
+
+
 
