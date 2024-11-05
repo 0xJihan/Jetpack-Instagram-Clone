@@ -19,7 +19,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MailOutline
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,9 +39,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jihan.jetpack_instagram_clone.domain.sources.remote.models.auth.LoginRequest
 import com.jihan.jetpack_instagram_clone.presentation.components.MyButton
 import com.jihan.jetpack_instagram_clone.presentation.components.MyTextField
-import com.jihan.jetpack_instagram_clone.domain.models.UserRequest
 import com.jihan.jetpack_instagram_clone.ui.theme.bgColorList
 import com.jihan.jetpack_instagram_clone.ui.theme.bgColorListDark
 import com.jihan.jetpack_instagram_clone.domain.utils.HelperClass
@@ -51,7 +50,7 @@ import com.jihan.jetpack_instagram_clone.domain.utils.MyFonts
 @Composable
 fun SignupScreen(
     onLoginClicked: () -> Unit = {},
-    onSignupClicked: (UserRequest) -> Unit = {},
+    onSignupClicked: (LoginRequest) -> Unit = {},
 ) {
 
 
@@ -61,7 +60,6 @@ fun SignupScreen(
     val context = LocalContext.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var username by remember { mutableStateOf("") }
 
     var confirmPassword by remember { mutableStateOf("") }
 
@@ -113,21 +111,7 @@ fun SignupScreen(
             Spacer(Modifier.height(20.dp))
 
 
-            MyTextField(modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp),
-                value = username,
-                "Username",
-                leadingIcon = {
-                    Icon(imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.clickable {
-                            Toast.makeText(context, "Email Icon clicked", Toast.LENGTH_SHORT).show()
-                        })
-                }) {
-                username = it
-            }
+
 
 
 
@@ -201,10 +185,7 @@ fun SignupScreen(
 
                 val pair = HelperClass.validateUserCredentials(
                     email = email,
-                    password = password,
-                    confirmPassword = confirmPassword,
-                    userName = username
-
+                    password = password, confirmPassword = confirmPassword
 
                     )
 
@@ -213,7 +194,7 @@ fun SignupScreen(
 
                 if (pair.first) {
 
-                    onSignupClicked(UserRequest(email = email, password = password, username = username))
+                    onSignupClicked(LoginRequest(email, password))
 
                 } else {
                     Toast.makeText(context, pair.second, Toast.LENGTH_SHORT).show()

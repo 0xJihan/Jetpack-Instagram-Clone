@@ -72,7 +72,7 @@ dependencies {
 
     // Coil
     implementation(libs.coil.compose)
-    //implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0-rc01")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0-rc02")
 
     // Retrofit
     implementation(libs.retrofit)

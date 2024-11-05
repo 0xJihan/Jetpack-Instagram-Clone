@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.rememberAsyncImagePainter
 import com.jihan.jetpack_instagram_clone.R
 import com.jihan.jetpack_instagram_clone.ui.theme.AppTheme
 import io.eyram.iconsax.IconSax
@@ -42,8 +43,9 @@ fun PostImage(modifier: Modifier = Modifier) {
 
 @Composable
 private fun PostHeader() {
+    val painter = rememberAsyncImagePainter(R.drawable.img)
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-       CircularImage(hideBorder = false , imageSize = 50)
+       CircularImage(painter = painter, modifier = Modifier.size(50.dp))
         Spacer(Modifier.width(8.dp))
         Column {
             UserInfo(name = "Jihan Khan", location = "Tokyo, Japan")

@@ -18,16 +18,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
-import com.jihan.jetpack_instagram_clone.presentation.components.CircularImage
-import com.jihan.jetpack_instagram_clone.presentation.components.PostImage
-import com.jihan.jetpack_instagram_clone.ui.theme.AppTheme
+import coil3.compose.rememberAsyncImagePainter
+import com.jihan.jetpack_instagram_clone.R
 import com.jihan.jetpack_instagram_clone.domain.utils.MyFonts
 import com.jihan.jetpack_instagram_clone.domain.utils.generateRandomColor
+import com.jihan.jetpack_instagram_clone.presentation.components.CircularImageWithBorder
+import com.jihan.jetpack_instagram_clone.presentation.components.PostImage
+import com.jihan.jetpack_instagram_clone.ui.theme.AppTheme
 
-class HomeTab(private val navigator: Navigator) : Tab {
+class HomeTab : Tab {
     override val options: TabOptions
         @Composable get() {
             return TabOptions(
@@ -86,7 +87,10 @@ private fun HomeScreen() {
             item {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(100) {
-                        CircularImage(imageSize = 80, hideBorder = false)
+                        CircularImageWithBorder(
+                            painter = rememberAsyncImagePainter(R.drawable.img),
+                            imageSize = 50
+                        )
                     }
                 }
             }

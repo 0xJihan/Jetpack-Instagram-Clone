@@ -1,5 +1,6 @@
 package com.jihan.jetpack_instagram_clone.presentation.navigation.tab
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,10 +11,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,21 +31,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cafe.adriel.voyager.navigator.Navigator
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
+import coil3.compose.rememberAsyncImagePainter
+import com.jihan.jetpack_instagram_clone.R
+import com.jihan.jetpack_instagram_clone.domain.sources.remote.models.auth.ProfileResponse
+import com.jihan.jetpack_instagram_clone.domain.utils.UiState
+import com.jihan.jetpack_instagram_clone.domain.utils.toImageUrl
+import com.jihan.jetpack_instagram_clone.domain.viewmodels.NavigatorViewmodel
+import com.jihan.jetpack_instagram_clone.domain.viewmodels.UserViewmodel
 import com.jihan.jetpack_instagram_clone.presentation.components.CircularImage
 import com.jihan.jetpack_instagram_clone.presentation.screens.auth.EditProfile
-import com.jihan.jetpack_instagram_clone.ui.theme.AppTheme
 import io.eyram.iconsax.IconSax
+import org.koin.compose.koinInject
 
-class ProfileTab(private val navigator: Navigator) : Tab {
+class ProfileTab : Tab {
     override val options: TabOptions
         @Composable get() {
             return TabOptions(
@@ -52,27 +62,57 @@ class ProfileTab(private val navigator: Navigator) : Tab {
 
     @Composable
     override fun Content() {
+        val navigatorViewmodel: NavigatorViewmodel = koinInject()
+        val navigator = navigatorViewmodel.navigator
+        val context = LocalContext.current
 
-        ProfileScreen(){
-        navigator push EditProfile(onCancelCLick = {navigator.pop()})
+
+        val userViewmodel = koinInject<UserViewmodel>()
+
+        val profileResponse by userViewmodel.profileResponse.collectAsStateWithLifecycle()
+
+
+        LaunchedEffect(Unit) { userViewmodel.getProfile() }
+
+        when (profileResponse) {
+            is UiState.Error -> {
+                Toast.makeText(context, profileResponse.message, Toast.LENGTH_SHORT).show()
+            }
+
+            is UiState.Initial -> {}
+            is UiState.Loading -> {
+                Column(
+                    Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+
+                    CircularProgressIndicator()
+                    Spacer(Modifier.height(10.dp))
+                    Text("Loading...")
+
+                }
+            }
+
+            is UiState.Success -> {
+                ProfileScreen(profileResponse.data!!) {
+                    navigator push EditProfile(
+                        onCancelCLick = { navigator.pop() },
+                        profileResponse = profileResponse.data!!
+                    )
+                }
+            }
         }
+
 
     }
 }
 
 
-@PreviewLightDark
 @Composable
-private fun ProfileScreenPreview() {
-    ProfileScreen()
-}
+private fun ProfileScreen(profileResponse: ProfileResponse, onEditCLick: () -> Unit = {}) {
 
-@Composable
-private fun ProfileScreen(onEditCLick : () -> Unit = {}) {
 
-    AppTheme {
-
-        // FIXME: Column
 
         Column(
             Modifier
@@ -87,20 +127,23 @@ private fun ProfileScreen(onEditCLick : () -> Unit = {}) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                CircularImage(imageSize = 100, hideBorder = true)
+
+                val painter= rememberAsyncImagePainter(profileResponse.result.image.toImageUrl()?: R.drawable.img_1)
+
+                CircularImage(modifier = Modifier.size(100.dp),painter)
                 StatsItem("54", "Posts")
                 StatsItem("834", "Followers")
                 StatsItem("162", "Following")
             }
 
             Text(
-                "Jihan Khan",
+                profileResponse.result.name,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 40.dp),
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                "Android developer. Expertise in Kotlin , java,php,nodeJs,mysql,sqlite,firebase,jetpack compose,api",
+                profileResponse.result.bio ?: "",
                 modifier = Modifier.padding(start = 40.dp),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurface
@@ -133,7 +176,6 @@ private fun ProfileScreen(onEditCLick : () -> Unit = {}) {
 
 
     }
-}
 
 @Composable
 private fun StatsItem(count: String, label: String) {

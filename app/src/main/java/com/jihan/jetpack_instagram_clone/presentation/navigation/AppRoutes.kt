@@ -72,7 +72,7 @@ object AppRoutes {
                     onCancelCLick = { navigator.pop() },
                     onDoneCLick = { navigator replaceAll Home },
                     fromSignupScreen = true,
-                    userRequest = it
+                    loginRequest = it
                 )
             }
         }

@@ -23,30 +23,30 @@ import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
+import com.jihan.jetpack_instagram_clone.domain.viewmodels.NavigatorViewmodel
 import com.jihan.jetpack_instagram_clone.presentation.navigation.tab.AddTab
 import com.jihan.jetpack_instagram_clone.presentation.navigation.tab.HomeTab
 import com.jihan.jetpack_instagram_clone.presentation.navigation.tab.LovedTab
 import com.jihan.jetpack_instagram_clone.presentation.navigation.tab.ProfileTab
 import com.jihan.jetpack_instagram_clone.presentation.navigation.tab.SearchTab
 import io.eyram.iconsax.IconSax
+import org.koin.compose.koinInject
 
 @Composable
 fun HomeScreen() {
 
-    //? Global Navigator
-    val navigator = LocalNavigator.currentOrThrow
 
 
     // ?:  TabNavigator for Bottom Navigation
-    TabNavigator(HomeTab(navigator)) {
+    TabNavigator(HomeTab()) {
 
         Scaffold(bottomBar = {
             BottomAppBar(modifier = Modifier.navigationBarsPadding()) {
-                TabNavigationItem(HomeTab(navigator), BottomTabIcon.HOME)
-                TabNavigationItem(SearchTab(navigator), BottomTabIcon.SEARCH)
-                TabNavigationItem(AddTab(navigator), BottomTabIcon.ADD)
-                TabNavigationItem(LovedTab(navigator), BottomTabIcon.LOVED)
-                TabNavigationItem(ProfileTab(navigator), BottomTabIcon.PROFILE)
+                TabNavigationItem(HomeTab(), BottomTabIcon.HOME)
+                TabNavigationItem(SearchTab(), BottomTabIcon.SEARCH)
+                TabNavigationItem(AddTab(), BottomTabIcon.ADD)
+                TabNavigationItem(LovedTab(), BottomTabIcon.LOVED)
+                TabNavigationItem(ProfileTab(), BottomTabIcon.PROFILE)
             }
         }) {
             Box(

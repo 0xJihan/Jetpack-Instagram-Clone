@@ -4,7 +4,7 @@ import androidx.compose.ui.text.googlefonts.GoogleFont
 import com.jihan.jetpack_instagram_clone.R
 
 object Constants {
-    const val BASE_URL = "http://192.168.2.100:5000"
+    const val BASE_URL = "http://192.168.1.109:5000"
     const val TAG = "Jihan Khan"
 
 

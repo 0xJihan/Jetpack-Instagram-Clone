@@ -6,6 +6,7 @@ import com.jihan.jetpack_instagram_clone.domain.sources.remote.api.UserApi
 import com.jihan.jetpack_instagram_clone.domain.viewmodels.UserViewmodel
 import com.jihan.jetpack_instagram_clone.domain.utils.Constants.BASE_URL
 import com.jihan.jetpack_instagram_clone.domain.utils.TokenManager
+import com.jihan.jetpack_instagram_clone.domain.viewmodels.NavigatorViewmodel
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
@@ -18,33 +19,36 @@ val appModule = module {
 
 
 
-    // OkHttpClient
+
     single {
        OkHttpClient.Builder().addInterceptor(NetworkInterceptor(get())).build()
-    }
+    }  //! OkHttpClient
 
-    // Retrofit Builder
+
     single {
         Retrofit.Builder().client(get()).addConverterFactory(GsonConverterFactory.create()).baseUrl(BASE_URL)
-    }
+    } //! Retrofit Builder
 
 
-    // UserApi
+
     single {
         get<Retrofit.Builder>().client(get()).build().create(UserApi::class.java)
-    }
+    }  //! UserApi
 
 
-    // Token manager
+
     single {
         TokenManager(androidContext())
-    }
+    }  //! Token manager
 
-    // UserRepository
-    singleOf(::UserRepository)
 
-    // UserViewmodel
-    viewModelOf(::UserViewmodel)
+    single { NavigatorViewmodel() } //! NavigatorViewmodel
+
+
+    singleOf(::UserRepository)  //! UserRepository
+
+
+    viewModelOf(::UserViewmodel) //! UserViewmodel
 
 
 }

@@ -1,7 +1,12 @@
 package com.jihan.jetpack_instagram_clone.presentation.screens.auth
 
+import android.content.Context
+import android.net.Uri
+import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,16 +43,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
-import com.google.gson.Gson
-import com.jihan.jetpack_instagram_clone.domain.models.UserProfileUpdateRequest
-import com.jihan.jetpack_instagram_clone.domain.models.UserRequest
+import coil3.compose.rememberAsyncImagePainter
+import com.jihan.jetpack_instagram_clone.R
+import com.jihan.jetpack_instagram_clone.domain.sources.remote.models.auth.LoginRequest
+import com.jihan.jetpack_instagram_clone.domain.sources.remote.models.auth.ProfileRequest
+import com.jihan.jetpack_instagram_clone.domain.sources.remote.models.auth.ProfileResponse
+import com.jihan.jetpack_instagram_clone.domain.sources.remote.models.auth.SignupRequest
+import com.jihan.jetpack_instagram_clone.domain.sources.remote.models.auth.UserProfile
+import com.jihan.jetpack_instagram_clone.domain.utils.Constants.TAG
 import com.jihan.jetpack_instagram_clone.domain.utils.TokenManager
 import com.jihan.jetpack_instagram_clone.domain.utils.UiState
+import com.jihan.jetpack_instagram_clone.domain.utils.toImageUrl
+import com.jihan.jetpack_instagram_clone.domain.utils.toMultipart
 import com.jihan.jetpack_instagram_clone.domain.viewmodels.UserViewmodel
 import com.jihan.jetpack_instagram_clone.presentation.components.CircularImage
 import org.koin.compose.koinInject
@@ -56,59 +68,44 @@ data class EditProfile(
     private val onCancelCLick: () -> Unit = {},
     private val onDoneCLick: () -> Unit = {},
     private val fromSignupScreen: Boolean = false,
-    private val userRequest: UserRequest? = null,
+    private val loginRequest: LoginRequest? = null,
+    private val profileResponse: ProfileResponse? = null,
 
     ) : Screen {
     @Composable
     override fun Content() {
 
-        if (fromSignupScreen) {
-            EditProfileScreen(
-                isFromLoginScreen = true,
-                onCancelCLick = onCancelCLick,
-                userRequest = userRequest!!
-            ) {
-                onDoneCLick()
-            }
-        } else {
-            EditProfileScreen(isFromLoginScreen = false, onCancelCLick = onCancelCLick) {
-            }
-
-        }
-
+        EditProfileScreen()
     }
 
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun EditProfileScreen(
-        onCancelCLick: () -> Unit = {},
-        isFromLoginScreen: Boolean,
-        userRequest: UserRequest = UserRequest(email = "", password = ""),
-        onDoneCLick: () -> Unit = {}
     ) {
-
 
 
 
 
         val userViewmodel = koinInject<UserViewmodel>()
         val signupResponse by userViewmodel.signupResponse.collectAsStateWithLifecycle()
+        val updateProfileResponse by userViewmodel.updateProfileResponse.collectAsStateWithLifecycle()
 
+        val result = profileResponse?.result
 
-        var name by remember { mutableStateOf(TextFieldValue("")) }
-        var username by remember { mutableStateOf(TextFieldValue(userRequest.username)) }
-        var website by remember { mutableStateOf(TextFieldValue("")) }
-        var bio by remember { mutableStateOf(TextFieldValue("")) }
+        var name by remember { mutableStateOf(result?.name ?: "") }
+        var username by remember { mutableStateOf(result?.username ?: "") }
+        var website by remember { mutableStateOf(result?.website ?: "") }
+        var bio by remember { mutableStateOf(result?.bio ?: "") }
 
-        var email by remember { mutableStateOf(TextFieldValue(userRequest.email)) }
-        var phone by remember { mutableStateOf(TextFieldValue("")) }
-        var gender by remember { mutableStateOf("Male") }
+        var phone by remember { mutableStateOf(result?.phone ?: "") }
+        var gender by remember { mutableStateOf(result?.gender ?: "Male") }
 
         var isLoading by remember { mutableStateOf(false) }
 
         val context = LocalContext.current
 
+        var imageUri by remember { mutableStateOf<Uri?>(null) }
 
 
 
@@ -121,9 +118,30 @@ data class EditProfile(
 
                 is UiState.Success -> {
                     isLoading = false
-                    TokenManager(context).saveToken(signupResponse.data?.result?.token)
-                    Toast.makeText(context, state.data!!.message, Toast.LENGTH_SHORT).show()
+                    TokenManager(context).saveToken(state.data!!.token)
+                    Toast.makeText(context, state.data.message, Toast.LENGTH_SHORT).show()
                     onDoneCLick()
+                }
+
+                is UiState.Error -> {
+                    isLoading = false
+                    Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
+                }
+
+                is UiState.Initial -> {}
+            }
+        }
+
+
+        LaunchedEffect(updateProfileResponse) {
+            when (val state = updateProfileResponse) {
+                is UiState.Loading -> {
+                    isLoading = true
+                }
+
+                is UiState.Success -> {
+                    isLoading = false
+                    Toast.makeText(context, state.data!!.message, Toast.LENGTH_SHORT).show()
                 }
 
                 is UiState.Error -> {
@@ -140,7 +158,7 @@ data class EditProfile(
 
         Scaffold(topBar = {
             TopAppBar(title = {
-                val text = if (isFromLoginScreen) "Add Profile Information" else "Edit Profile"
+                val text = if (fromSignupScreen) "Add Profile Information" else "Edit Profile"
                 Text(
                     text = text, fontWeight = FontWeight.Bold
                 )
@@ -151,45 +169,43 @@ data class EditProfile(
             }, actions = {
                 TextButton(onClick = {
 
-                    val pair = validInformation(
-                        name = name.text,
-                        username = username.text,
-                        email = email.text,
-                    )
-
-                    when {
-                        pair.first -> {
-
-                            if (fromSignupScreen){
-                            createAccount(
-                                name,
-                                bio,
-                                website,
-                                email,
-                                userRequest,
-                                userViewmodel,
-                                username
-                            )}
-
-                            else {
-                                //? update profile
-                            }
-
-
-                        }
-
-                        else -> {
-                            Toast.makeText(context, pair.second, Toast.LENGTH_SHORT).show()
-                        }
+                    if (fromSignupScreen) {
+                        isLoading = true
+                        createUserAccount(
+                            name,
+                            username,
+                            website,
+                            bio,
+                            phone,
+                            gender,
+                            userViewmodel,
+                            imageUri,
+                            context
+                        )
+                    } else {
+                        updateProfile(
+                            userViewmodel,
+                            imageUri,
+                            context,
+                            name,
+                            username,
+                            website,
+                            bio,
+                            phone,
+                            gender = gender
+                        )
                     }
 
 
-                }) {
+                }, enabled = isLoading.not()) {
                     Text("Done", color = Color.Blue)
                 }
             }, colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.surface
-            ), modifier = Modifier.padding(top = 20.dp)
+            ),
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(top = 20.dp)
             )
         }) { innerPadding ->
 
@@ -205,7 +221,9 @@ data class EditProfile(
                                 .padding(innerPadding)
                                 .padding(16.dp)
                         ) {
-                            ProfileImageSection(isLoading)
+                            ProfileImageSection(isLoading) {
+                                imageUri = it
+                            }
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Column {
@@ -229,7 +247,11 @@ data class EditProfile(
                                     fontSize = 14.sp,
                                     modifier = Modifier.padding(vertical = 8.dp)
                                 )
-                                EditableField(label = "Email", value = email) { email = it }
+                                EditableField(
+                                    label = "Email",
+                                    value = loginRequest?.email ?: profileResponse!!.email,
+                                    enabled = false
+                                )
                                 EditableField(label = "Phone", value = phone) { phone = it }
 
                                 GenderSelection(selectedGender = gender) {
@@ -247,49 +269,140 @@ data class EditProfile(
         }
     }
 
+    private fun createUserAccount(
+        name: String,
+        username: String,
+        website: String,
+        bio: String,
+        phone: String,
+        gender: String,
+        userViewmodel: UserViewmodel,
+        imageUri: Uri?,
+        context: Context,
+    ) {
+        val pair = validInformation(
+            name = name,
+            username = username,
+            email = loginRequest!!.email,
+        )
+
+        if (pair.first) {
+            createAccount(
+                name = name,
+                username = username,
+                website = website,
+                bio = bio,
+                phone = phone,
+                gender = gender,
+                userRequest = loginRequest,
+                userViewmodel = userViewmodel,
+                imageUri = imageUri,
+                context = context
+            )
+        } else {
+            Toast.makeText(context, pair.second, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun updateProfile(
+        userViewmodel: UserViewmodel,
+        imageUri: Uri?,
+        context: Context,
+        name: String,
+        username: String,
+        website: String?,
+        bio: String?,
+        phone: String?,
+        gender: String,
+    ) {
+
+        val imagePart = imageUri.toMultipart(context)
+
+        val profileRequest = ProfileRequest(
+            name = name,
+            username = username,
+            website = website,
+            bio = bio,
+            phone = phone,
+            gender = gender
+        )
+
+        userViewmodel.updateProfile(imagePart, profileRequest)
+
+    }
+
 
     private fun createAccount(
-        name: TextFieldValue,
-        bio: TextFieldValue,
-        website: TextFieldValue,
-        email: TextFieldValue,
-        userRequest: UserRequest,
+        name: String,
+        username: String,
+        website: String,
+        bio: String,
+        phone: String,
+        gender: String,
+        userRequest: LoginRequest,
         userViewmodel: UserViewmodel,
-        username: TextFieldValue,
+        imageUri: Uri?,
+        context: Context,
     ) {
-        val profileRequest = UserProfileUpdateRequest(
-            name = name.text,
-            bio = bio.text,
-            website = website.text,
-            email = email.text,
-            imageUrl = "https://yt3.googleusercontent.com/AxY35HWPLznD48lx67k15hEINzD2v0f4AtwoorK8qJDCOQDE7FKUHSJF4DB0VFseZLOi0NfUjg=s160-c-k-c0x00ffffff-no-rj",
-            password = userRequest.password
-        )
 
-        val jsonRequest = Gson().toJson(profileRequest)
+        //? converting image uri to multipart
+        val imagePart = imageUri.toMultipart(context)
 
-        userViewmodel.signup(
-            UserRequest(
-                email = email.text,
-                password = "password",
-                userProfile = jsonRequest,
-                username = username.text
+        val request = SignupRequest(
+            email = userRequest.email, password = userRequest.password, userProfile = UserProfile(
+                name = name,
+                username = username,
+                bio = bio,
+                website = website,
+                phone = phone,
+                gender = gender
             )
         )
+
+        //? requesting to create account
+        userViewmodel.signup(imagePart, request)
+
 
     }
 
 
     @Composable
-    private fun ProfileImageSection(isLoading: Boolean) {
+    private fun ProfileImageSection(isLoading: Boolean, callback: (Uri) -> Unit) {
         val loadingState by rememberUpdatedState(isLoading)
+
         Column(
             modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Replace with your own image resource or URL
-            CircularImage(hideBorder = true, imageSize = 150)
+
+            var imageUri by remember { mutableStateOf<Uri?>(null) }
+            val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
+                if (it == null) return@rememberLauncherForActivityResult
+                imageUri = it
+                callback(it)
+
+            }
+
+
+
+            Log.d(TAG, "ProfileImageSection: ${imageUri?.path}")
+            Log.d(TAG, "ProfileImageSection: ${profileResponse?.result?.image?.toImageUrl()}")
+
+
+            val painter = rememberAsyncImagePainter(
+                model = imageUri ?: profileResponse?.result?.image?.toImageUrl()?: R.drawable.img_1
+            )
+          CircularImage(
+              modifier = Modifier.size(100.dp),
+              painter
+          )
+
+
+
+
             Spacer(modifier = Modifier.height(8.dp))
-            TextButton(onClick = {}) {
+            TextButton(onClick = {
+                launcher.launch("image/*")
+            }) {
                 Text(
                     text = "Change Profile Photo",
                     color = MaterialTheme.colorScheme.primary,
@@ -307,15 +420,15 @@ data class EditProfile(
     @Composable
     private fun EditableField(
         label: String,
-        value: TextFieldValue,
+        value: String,
         maxLines: Int = 1,
-        onValueChange: (TextFieldValue) -> Unit,
+        enabled: Boolean = true,
+        onValueChange: (String) -> Unit = {},
     ) {
         Column(modifier = Modifier.padding(vertical = 8.dp)) {
 
             TextField(
-                value = value,
-                onValueChange = onValueChange,
+                value = value, onValueChange = { onValueChange(it) }, enabled = enabled,
                 textStyle = TextStyle(
                     fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface
                 ),
@@ -358,6 +471,8 @@ data class EditProfile(
                     text = "Female", modifier = Modifier.padding(start = 8.dp)
                 )
             }
+
+
         }
     }
 

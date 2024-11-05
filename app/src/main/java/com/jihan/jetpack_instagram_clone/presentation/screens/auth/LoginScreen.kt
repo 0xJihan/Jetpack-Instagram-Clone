@@ -39,16 +39,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.jihan.jetpack_instagram_clone.presentation.components.MyButton
-import com.jihan.jetpack_instagram_clone.presentation.components.MyTextField
-import com.jihan.jetpack_instagram_clone.domain.models.UserRequest
-import com.jihan.jetpack_instagram_clone.domain.viewmodels.UserViewmodel
-import com.jihan.jetpack_instagram_clone.ui.theme.bgColorList
-import com.jihan.jetpack_instagram_clone.ui.theme.bgColorListDark
+import com.jihan.jetpack_instagram_clone.domain.sources.remote.models.auth.LoginRequest
 import com.jihan.jetpack_instagram_clone.domain.utils.HelperClass
 import com.jihan.jetpack_instagram_clone.domain.utils.MyFonts
 import com.jihan.jetpack_instagram_clone.domain.utils.TokenManager
 import com.jihan.jetpack_instagram_clone.domain.utils.UiState
+import com.jihan.jetpack_instagram_clone.domain.viewmodels.UserViewmodel
+import com.jihan.jetpack_instagram_clone.presentation.components.MyButton
+import com.jihan.jetpack_instagram_clone.presentation.components.MyTextField
+import com.jihan.jetpack_instagram_clone.ui.theme.bgColorList
+import com.jihan.jetpack_instagram_clone.ui.theme.bgColorListDark
 import org.koin.compose.koinInject
 
 @Composable
@@ -83,7 +83,7 @@ fun LoginScreen(
             is UiState.Success -> {
                 isLoading = false
                 Toast.makeText(context, state.data!!.message, Toast.LENGTH_SHORT).show()
-                tokenManager.saveToken(state.data.result.token)
+                tokenManager.saveToken(state.data.token)
                 onLoginClicked()
             }
 
@@ -203,11 +203,7 @@ fun LoginScreen(
                 // TODO: Fix this later
 
                if (pair.first){
-                   userViewmodel.login(
-                       UserRequest(
-                            email = email, password = password
-                       )
-                   )
+                   userViewmodel.login(LoginRequest(email = email, password = password))
                }
                 else {
                     Toast.makeText(context, pair.second, Toast.LENGTH_SHORT).show()
